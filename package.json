@@ -5,15 +5,14 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon ./app.js"
+    "start": "nodemon ./app.js",
+    "build": "rm -rf lib/ && babel src --out-dir lib --ignore '**/*.test.ts' --extensions '.ts'",
+    "mbin": "pkg ./lib/app.js --output app --targets node16-macos-x64,node16-linux-x64,node16-win-x64"
   },
   "dependencies": {
-    "@babel/cli": "^7.22.15",
-    "@babel/core": "^7.22.20",
-    "@babel/preset-env": "^7.22.20",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
-    "dotenv": "^16.3.1",
+    "dotenv": "16.3.1",
     "express": "^4.18.2",
     "http-errors": "~1.6.3",
     "human-signals": "^5.0.0",
@@ -22,5 +21,19 @@
     "nodemon": "^3.0.1",
     "npm-run-path": "^5.1.0",
     "open": "^9.1.0"
-  }
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.15",
+    "@babel/core": "^7.22.20",
+    "@babel/preset-env": "^7.22.20",
+    "@shelf/babel-config": "2.0.1",
+    "@shelf/tsconfig": "0.0.11",
+    "@shelf/eslint-config": "2.5.2",
+    "@shelf/prettier-config": "1.0.0",
+    "typescript": "4.7.3"
+  },
+  "babel": {
+    "extends": "@shelf/babel-config/backend"
+  },
+  "prettier": "@shelf/prettier-config"
 }

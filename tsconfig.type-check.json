@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "module": "commonjs",
+    "target": "esnext",
+    "sourceMap": false,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "./types-3rd-party"
+    ]
+  },
+  "exclude": [
+    "**/*.test.ts"
+  ]
+}
