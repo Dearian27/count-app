@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const componentSchema = mongoose.Schema({
+  name: String,
   type: {
     type: String,
     enum: ['case', 'gpu', 'cpu', 'motherboard', 'monitor', 'ram']
@@ -9,4 +10,4 @@ const componentSchema = mongoose.Schema({
 {timestamps: true}
 )
 
-export default Component = mongoose.model('Component', componentSchema);
+export const Component = mongoose.model('Component', componentSchema);

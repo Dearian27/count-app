@@ -6,6 +6,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 
 import computersRouter from './routes/computers.js';
+import componentsRouter from './routes/components.js';
 
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(cors({
 
 // app.use('/', indexRouter);
 app.use('/api/computers', computersRouter);
+app.use('/api/components', componentsRouter);
 
 app.use((req, res, next) => {
   next(createError(404));

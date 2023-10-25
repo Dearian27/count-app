@@ -1,3 +1,4 @@
+import { Component } from "../model/Component.js";
 import { Computer } from "../model/Computer.js"
 
 export const getComputers = async(req, res, next) => {
@@ -22,6 +23,6 @@ export const createComputer = async(req, res, next) => {
       message: "Computer has been created"
     })
   } catch (err) {
-    
+    console.log(err);
   }
 }
