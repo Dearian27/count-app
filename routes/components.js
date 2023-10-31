@@ -5,9 +5,9 @@ const router = express.Router();
 
 router.get('/', getAllComponents);
 router.get('/:type', getComponentsByType);
-router.get('/[id]', getComputerComponents);
+router.get('/:id', getComputerComponents);
 router.post('/create', createComponent);
-router.patch('/:id', addComponentToComputer)
+router.post('/:id', addComponentToComputer)
 
 // module.exports = router;
 export default router;

@@ -40,11 +40,31 @@ export const createComponent = async(req, res, next) => {
 }
 
 export const addComponentToComputer = async(req, res, next) => {
+  
+  
+  const {type, id:componentId} = req.body;
   const { id } = req.params;
+
   try {
-    const computer = Computer.updateOne({id:id}, {$set:req.body});
-    if(!computer) return res.status(404).json({message: 'Computer not found'});
-    
+    const computer = await Computer.findById(id);
+
+    if (!computer) {
+      return res.status(404).json({ message: 'Computer not found' });
+    }
+
+    const componentType = computer.components.find((comp) => comp.type == type);
+
+    if (componentType === -1) {
+      return res.status(404).json({ message: 'Component not found' });
+    }
+
+    // Оновіть значення поля "type" в компоненті
+    computer.components[componentType].componentId = componentId;
+
+    // Збережіть зміни в базі даних
+    await computer.save();
+    ///const computer = await Computer.updateOne({_id:id}, {$set:{type:type,}});
+    return res.status(200).json({computer, message: 'Add components'});
   } catch(error) {
     return res.status(500).json({ message: 'something went wrong'});
   }
