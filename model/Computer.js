@@ -7,8 +7,20 @@ const compSchema = mongoose.Schema(
       required: true
     },
     components: {
-      type: [{id: String, type: String}],
-      default: []
+      type: [
+        {
+          // _id: { type: String, default: null },
+          type: { type: String, default: String }
+        }
+      ],
+      default: [
+        { _id: null, type: 'case'},
+        { _id: null, type: 'gpu'},
+        { _id: null, type: 'cpu'},
+        { _id: null, type: 'motherboard'},
+        { _id: null, type: 'monitor'},
+        { _id: null, type: 'ram'},
+      ]
     },
     history: {
       type: [{id: String, type: String, endData: Date}],

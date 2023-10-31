@@ -57,6 +57,7 @@ export const addComponentToComputer = async(req, res, next) => {
     const computer = Computer.findOne({id: id});
     if(!computer) return res.status(404).json({message: 'Computer not found'});
     
+    
   } catch(error) {
     return res.status(500).json({ message: 'something went wrong'});
   }
