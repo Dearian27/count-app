@@ -9,7 +9,7 @@ const compSchema = mongoose.Schema(
     components: {
       type: [
         {
-          // _id: { type: String, default: null },
+          _id: { type: String, default: null },
           type: { type: String, default: String }
         }
       ],
