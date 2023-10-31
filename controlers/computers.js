@@ -12,6 +12,20 @@ export const getComputers = async(req, res, next) => {
     res.status(500).json({message: 'something went wrong'});
   }
 }
+
+export const getComputersById = async(req, res, next) => {
+  const { id } = req.params;
+  try {
+    const computers = await Computer.findOne({_id: id});
+    return res.status(200).json({
+      computers,
+      message: "get computers",
+    })
+  } catch(error) {
+    res.status(500).json({message: 'something went wrong'});
+  }
+}
+
 export const createComputer = async(req, res, next) => {
   const { name } = req.body;
   try {

@@ -39,25 +39,25 @@ export const createComponent = async(req, res, next) => {
   }
 }
 
-export const addComponent = async(req, res, next) => {
-  const {type, name} = req.body;
-  if(!type || !name) return res.status(404).json({message: 'Please, provide credentials'});
-  try {
-    const component = new Component({type, name});
-    component.save();
-    res.status(200).json({component, message: 'Component created successfully'});
-  } catch(error) {
-    res.status(500).json({message: 'Something went wrong'})
-  }
-}
-
 export const addComponentToComputer = async(req, res, next) => {
   const { id } = req.params;
   try {
-    const computer = Computer.findOne({id: id});
+    const computer = Computer.updateOne({id:id}, {$set:req.body});
     if(!computer) return res.status(404).json({message: 'Computer not found'});
     
   } catch(error) {
     return res.status(500).json({ message: 'something went wrong'});
   }
+}
+
+export const getComponentsByType = async(req, res, next) => {
+  const { type } = req.params; 
+  try {
+    const components = await Component.find({type: type});
+    return res.status(200).json({components, message: 'Get components'});
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({message: 'Error getting components'});
+  }
+  
 }
