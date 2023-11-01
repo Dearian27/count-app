@@ -52,7 +52,7 @@ export const addComponentToComputer = async(req, res, next) => {
     }
     const computerComponent = computer.components[componentType];
   
-    const oldId = computer.components.find(component => component.type === type)._id;    
+    const oldId = computer.components.find(component => component.type === type).id;    
     let oldComponent;
     if(oldId) {
       oldComponent = await Component.findById(oldId);  
@@ -73,7 +73,7 @@ export const addComponentToComputer = async(req, res, next) => {
       try {
         if(newComponent.anchor !== computer._id && newComponent.anchor) {    
           const oldComputer = await Computer.findById(newComponent.anchor);
-          oldComputer.components.find(component => component.type === type)._id = '';
+          oldComputer.components.find(component => component.type === type).id = '';
           await oldComputer.save();
         }
       } catch(err) {

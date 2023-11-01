@@ -14,12 +14,12 @@ const compSchema = mongoose.Schema(
         }
       ],
       default: [
-        { _id: null, type: 'case'},
-        { _id: null, type: 'gpu'},
-        { _id: null, type: 'cpu'},
-        { _id: null, type: 'motherboard'},
-        { _id: null, type: 'monitor'},
-        { _id: null, type: 'ram'},
+        { id: null, type: 'case'},
+        { id: null, type: 'gpu'},
+        { id: null, type: 'cpu'},
+        { id: null, type: 'motherboard'},
+        { id: null, type: 'monitor'},
+        { id: null, type: 'ram'},
       ]
     },
     history: {
