@@ -23,9 +23,12 @@ const compSchema = mongoose.Schema(
       ]
     },
     history: {
-      type: [{id: String, type: String, endData: Date}],
+      type: [
+        [
+          {id: String, message: String, name: String, type: String, endData: Date}
+        ]
+      ],
       default: []
-      //TODO добавити старт експлуатації з посиланням на старий комп'ютер
     },
     location: {
       type: String,

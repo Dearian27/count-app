@@ -17,11 +17,6 @@ export const getComputerComponents = async(req, res, next) => {
     const computer = await Computer.findOne({_id: id});
     if(!computer) return res.status(500).json({message: 'Please, provide credentials'});
     return res.status(200).json({components: computer.components, message: 'Components of the computer'});
-    // const result = await Computer.findOne({
-    //   components: {
-    //     $elemMatch: { type: 'cpu' }
-    //   }
-    // });
   } catch(error) {
 
   }
@@ -38,13 +33,9 @@ export const createComponent = async(req, res, next) => {
     res.status(500).json({message: 'Something went wrong'})
   }
 }
-
 export const addComponentToComputer = async(req, res, next) => {
-  
-  
   const {type, id:componentId} = req.body;
   const { id } = req.params;
-
   try {
     const computer = await Computer.findById(id);
     if (!computer) {
