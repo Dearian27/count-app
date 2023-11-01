@@ -44,19 +44,44 @@ export const addComponentToComputer = async(req, res, next) => {
   
   const {type, id:componentId} = req.body;
   const { id } = req.params;
-
+  
   try {
     const computer = await Computer.findById(id);
+    const component = await Component.findById(componentId);
+    
     if (!computer) {
       return res.status(404).json({ message: 'Computer not found' });
     }
-    const componentType = computer.components.find((comp) => comp.type == type);
+
+    if (!component) {
+      return res.status(404).json({ message: 'Component not found' });
+    }
+
+    const componentType = computer.components.findIndex((comp) => comp.type == type);
+   
     if (componentType === -1) {
       return res.status(404).json({ message: 'Component not found' });
     }
-    computer.components[componentType].componentId = componentId;
-    await computer.save();
+  
+    const currentComponent = computer.components[componentType];
+    const historyItem = {...currentComponent}
+    if(currentComponent._id != null){
+     computer.history.push();
+      
+     // res.json({message:"Початок експлуатації", id:currentComponent._id});
+    }
+    
+  
 
+    //TODO якщо id if(id old) "{компонент} змінено на" + "{id old}"
+    //TODO else "компонент почав експлуатацію"
+    //TODO res.json({message:"компонент почав експлуатацію", id: null});
+
+    currentComponent._id = componentId;
+    component.anchor = computer._id;
+    await component.save();
+    await computer.save();
+   
     return res.status(200).json({computer, message: 'Add components'});
   } catch(error) {
     return res.status(500).json({ message: 'something went wrong'});

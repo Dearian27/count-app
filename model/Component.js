@@ -6,6 +6,10 @@ const componentSchema = mongoose.Schema({
     type: String,
     enum: ['case', 'gpu', 'cpu', 'motherboard', 'monitor', 'ram']
   },
+  anchor: {
+    type: String,
+    default: ""
+    }
 },
 {timestamps: true}
 )
