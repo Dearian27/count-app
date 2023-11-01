@@ -36,21 +36,70 @@ export const createComponent = async(req, res, next) => {
 export const addComponentToComputer = async(req, res, next) => {
   const {type, id:componentId} = req.body;
   const { id } = req.params;
+  
   try {
     const computer = await Computer.findById(id);
     if (!computer) {
       return res.status(404).json({ message: 'Computer not found' });
     }
-    const componentType = computer.components.find((comp) => comp.type == type);
+    const newComponent = await Component.findById(componentId);
+    if (!newComponent) {
+      return res.status(404).json({ message: 'Component not found' });
+    }
+    const componentType = computer.components.findIndex((comp) => comp.type == type);
     if (componentType === -1) {
       return res.status(404).json({ message: 'Component not found' });
     }
-    computer.components[componentType].componentId = componentId;
-    await computer.save();
+    const computerComponent = computer.components[componentType];
+  
+    const oldId = computer.components.find(component => component.type === type)._id;    
+    let oldComponent;
+    if(oldId) {
+      oldComponent = await Component.findById(oldId);  
+    } //! <<try || null>>
+    
+    let message;
+    if(!oldComponent || oldComponent?._id === newComponent._id){
+      message = "Початок експлуатації";
+      const historyItem = {
+        actionDate: Date.now(),
+        componentType: type,
+        id: newComponent._id,
+        name: newComponent.name,
+      } 
+      computer.history.push(historyItem);      
+    } else {
+      message = "Зміна комплектуючої";
+      try {
+        if(newComponent.anchor !== computer._id && newComponent.anchor) {    
+          const oldComputer = await Computer.findById(newComponent.anchor);
+          oldComputer.components.find(component => component.type === type)._id = '';
+          await oldComputer.save();
+        }
+      } catch(err) {
+        console.log(err);
+      }
+      oldComponent.anchor = '';
+      await oldComponent.save();
 
-    return res.status(200).json({computer, message: 'Add components'});
+      const historyItem = {
+        actionDate: Date.now(),
+        componentType: type,
+        id: newComponent._id,
+        name: newComponent.name,
+        oldId: oldComponent._id,
+        oldName: oldComponent.name
+      }
+      computer.history.push(historyItem);
+    }
+    computerComponent._id = newComponent._id;
+    newComponent.anchor = computer._id;
+
+    await newComponent.save();
+    await computer.save();
+    return res.status(200).json({component: newComponent, history: computer.history, message});
   } catch(error) {
-    return res.status(500).json({ message: 'something went wrong'});
+    return res.status(500).json({ message: 'Щось пішло не так'});
   }
 }
 
@@ -63,5 +112,4 @@ export const getComponentsByType = async(req, res, next) => {
     console.log(err);
     return res.status(500).json({message: 'Error getting components'});
   }
-  
 }

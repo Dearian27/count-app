@@ -24,9 +24,20 @@ const compSchema = mongoose.Schema(
     },
     history: {
       type: [
-        [
-          {id: String, message: String, name: String, type: String, endData: Date}
-        ]
+        {
+          date: Date,
+          componentType: String,
+          _id: String,
+          name: String,
+          oldId: {
+            type: String,
+            default: '',
+          },
+          oldName: {
+            type: String,
+            default: '',
+          }
+        }
       ],
       default: []
     },
