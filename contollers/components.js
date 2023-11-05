@@ -1,5 +1,5 @@
-import { Component } from "../model/Component.js";
-import { Computer } from "../model/Computer.js";
+import { Component } from "../models/Component.js";
+import { Computer } from "../models/Computer.js";
 
 export const getAllComponents = async(req, res, next) => { 
   try {
@@ -18,7 +18,7 @@ export const getComputerComponents = async(req, res, next) => {
     if(!computer) return res.status(500).json({message: 'Please, provide credentials'});
     return res.status(200).json({components: computer.components, message: 'Components of the computer'});
   } catch(error) {
-
+    res.status(500).json({message: "Cannot get computer components"});
   }
 }
 
@@ -35,8 +35,7 @@ export const createComponent = async(req, res, next) => {
 }
 export const addComponentToComputer = async(req, res, next) => {
   const {type, id:componentId} = req.body;
-  const { id } = req.params;
-  
+  const { id } = req.params;  
   try {
     const computer = await Computer.findById(id);
     if (!computer) {
@@ -50,13 +49,14 @@ export const addComponentToComputer = async(req, res, next) => {
     if (componentType === -1) {
       return res.status(404).json({ message: 'Component not found' });
     }
-    const computerComponent = computer.components[componentType];
-  
     const oldId = computer.components.find(component => component.type === type).id;    
     let oldComponent;
+    if(oldId === newComponent._id) {
+      return res.status(401).json({message: "Cannot change same component"});
+    }
     if(oldId) {
       oldComponent = await Component.findById(oldId);  
-    } //! <<try || null>>
+    }
     
     let message;
     if(!oldComponent || oldComponent?._id === newComponent._id){
@@ -66,7 +66,7 @@ export const addComponentToComputer = async(req, res, next) => {
         componentType: type,
         id: newComponent._id,
         name: newComponent.name,
-      } 
+      }
       computer.history.push(historyItem);      
     } else {
       message = "Зміна комплектуючої";
@@ -81,7 +81,6 @@ export const addComponentToComputer = async(req, res, next) => {
       }
       oldComponent.anchor = '';
       await oldComponent.save();
-
       const historyItem = {
         actionDate: Date.now(),
         componentType: type,
@@ -92,12 +91,12 @@ export const addComponentToComputer = async(req, res, next) => {
       }
       computer.history.push(historyItem);
     }
-    computerComponent._id = newComponent._id;
+    computer.components[componentType].id = newComponent._id;
     newComponent.anchor = computer._id;
 
     await newComponent.save();
     await computer.save();
-    return res.status(200).json({component: newComponent, history: computer.history, message});
+    return res.status(200).json({component: newComponent, history: computer.history, computer, message});
   } catch(error) {
     return res.status(500).json({ message: 'Щось пішло не так'});
   }

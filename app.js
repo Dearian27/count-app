@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 
 import computersRouter from './routes/computers.js';
 import componentsRouter from './routes/components.js';
+import authRouter from './routes/auth.js';
 
 
 const app = express();
@@ -25,7 +26,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
-// app.use('/', indexRouter);
+app.use('/api/auth', authRouter);
 app.use('/api/computers', computersRouter);
 app.use('/api/components', componentsRouter);
 

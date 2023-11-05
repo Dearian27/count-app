@@ -1,5 +1,5 @@
 import express from 'express';
-import { createComponent, getComputerComponents, getAllComponents, getComponentsByType, addComponentToComputer } from '../controlers/components.js';
+import { createComponent, getComputerComponents, getAllComponents, getComponentsByType, addComponentToComputer } from '../contollers/components.js';
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import { createComputer, getComputers, getComputersById } from '../controlers/computers.js';
+import { createComputer, getComputers, getComputersById } from '../contollers/computers.js';
 
 const router = express.Router();
 

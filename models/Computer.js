@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 const compSchema = mongoose.Schema(
   {
     name: {
@@ -9,7 +8,7 @@ const compSchema = mongoose.Schema(
     components: {
       type: [
         {
-          _id: { type: String, default: null },
+          id: { type: String, default: null },
           type: { type: String, default: String }
         }
       ],
@@ -20,7 +19,8 @@ const compSchema = mongoose.Schema(
         { id: null, type: 'motherboard'},
         { id: null, type: 'monitor'},
         { id: null, type: 'ram'},
-      ]
+      ],
+      _id: false,
     },
     history: {
       type: [

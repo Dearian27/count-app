@@ -1,5 +1,5 @@
-import { Component } from "../model/Component.js";
-import { Computer } from "../model/Computer.js"
+import { Component } from "../models/Component.js";
+import { Computer } from "../models/Computer.js"
 
 export const getComputers = async(req, res, next) => {
   try {
