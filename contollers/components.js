@@ -11,6 +11,7 @@ export const getAllComponents = async(req, res, next) => {
   }
 }
 
+
 export const getComputerComponents = async(req, res, next) => {
   const { id } = req.params;
   try {
@@ -128,4 +129,45 @@ export const getComponentsByType = async(req, res, next) => {
     console.log(err);
     return res.status(500).json({message: 'Error getting components'});
   }
-}
+};
+
+export const deleteComponent = async (req, res, next) => {
+  const { id } = req.body;
+
+  try {
+    const component = await Component.findById(id);
+    
+    if (!component) {
+      return res.status(404).json({ message: 'Component not found' });
+    }
+
+    if(!component.anchor){
+      return res.status(418).json({ message: 'Component not found' });
+    }
+
+    const computer = await Computer.findById(component.anchor); 
+    if (!computer) {
+      return res.status(404).json({ message: 'Component not foundsdafsda' });
+    }
+    
+   // console.log(computer.components.find(c => c.type === component.type).id)
+    
+    const index = computer.components.find(c => c.type === component.type).id.indexOf(id);
+    computer.components.find( c => c.type === component.type).id.splice(index, 1);
+    
+
+    const deletedComponents = await Component.findOneAndDelete({ _id: id });
+    if (!deletedComponents) {
+      return res.status(404).json({ message: "Компонент не знайдено" });
+    }
+
+    await computer.save();
+    return res.status(200).json({
+      message: "Компонент видалено успішно",
+    });
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Виникла помилка при видаленні компонент' });
+  }
+};
