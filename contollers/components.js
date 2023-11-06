@@ -150,9 +150,13 @@ export const deleteComponent = async (req, res, next) => {
       return res.status(404).json({ message: 'Component not foundsdafsda' });
     }
     
-    computer.components.find(component => component.id === id).id = null;
+   // console.log(computer.components.find(c => c.type === component.type).id)
     
-   
+    const index = computer.components.find(c => c.type === component.type).id;
+    console.log(index[0])
+    console.log(index.findIndex("6549154bd6645d8e3dd6cdfd"))
+    computer.components.find( c => c.type === component.type).id.splice(index, 1);
+    
 
     const deletedComponents = await Component.findOneAndDelete({ _id: id });
     if (!deletedComponents) {

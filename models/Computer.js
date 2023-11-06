@@ -8,21 +8,21 @@ const compSchema = mongoose.Schema(
     components: {
       type: [
         {
-          id: [String] || String,
-          type: String
+          id: [String],
+          type: { type: String }
         }
       ],
       default: [
-        { id: null, type: 'case'},
-        { id: null, type: 'gpu'},
-        { id: null, type: 'cpu'},
-        { id: null, type: 'motherboard'},
-        { id: null, type: 'monitor'},
+        { id: [], type: 'case'},
+        { id: [], type: 'gpu'},
+        { id: [], type: 'cpu'},
+        { id: [], type: 'motherboard'},
+        { id: [], type: 'monitor'},
         { id: [], type: 'ram'},
         { id: [], type: 'disk'},
-        { id: null, type: 'keyboard'},
-        { id: null, type: 'mouse'},
-        { id: null, type: 'power_supply'},
+        { id: [], type: 'keyboard'},
+        { id: [], type: 'mouse'},
+        { id: [], type: 'power_supply'},
       ],
       _id: false,
     },
