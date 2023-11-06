@@ -41,3 +41,24 @@ export const createComputer = async(req, res, next) => {
     console.log(err);
   }
 }
+
+export const deleteComputerById = async (req, res, next) => {
+  const { id } = req.body;
+
+  try {
+    
+   
+    const deletedComputer = await Computer.findOneAndDelete({ _id: id });
+    
+    if (!deletedComputer) {
+      return res.status(404).json({ message: "Комп'ютер не знайдено" });
+    }
+
+    return res.status(200).json({
+      message: "Комп'ютер видалено успішно",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Виникла помилка при видаленні комп\'ютера' });
+  }
+};
