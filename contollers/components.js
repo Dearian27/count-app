@@ -34,7 +34,7 @@ export const createComponent = async(req, res, next) => {
   }
 }
 export const addComponentToComputer = async(req, res, next) => {
-  const {type, id:componentId} = req.body;
+  const {type, id:componentId, currentComponentId=null} = req.body;
   const { id } = req.params;  
   try {
     const computer = await Computer.findById(id);
@@ -54,10 +54,11 @@ export const addComponentToComputer = async(req, res, next) => {
     if(oldId === newComponent._id) {
       return res.status(401).json({message: "Cannot change same component"});
     }
-    if(oldId) {
+    if(currentComponentId) {
+      oldComponent = await Component.findById(currentComponentId);  
+    } else if(oldId) {
       oldComponent = await Component.findById(oldId);  
     }
-    
     let message;
     if(!oldComponent || oldComponent?._id === newComponent._id){
       message = "Початок експлуатації";
@@ -73,7 +74,14 @@ export const addComponentToComputer = async(req, res, next) => {
       try {
         if(newComponent.anchor !== computer._id && newComponent.anchor) {    
           const oldComputer = await Computer.findById(newComponent.anchor);
-          oldComputer.components.find(component => component.type === type).id = '';
+          if(currentComponentId) {
+            const currentId = oldComputer.components.find(component => component.type === type).id.findIndex(id => id === currentComponentId);
+            if(currentId !== -1) {
+              oldComputer.components.find(component => component.type === type).id.splice(currentId, 1);
+            }
+          } else if (type !== 'ram' && type !== 'disk') {
+            oldComputer.components.find(component => component.type === type).id = '';
+          }
           await oldComputer.save();
         }
       } catch(err) {
@@ -91,12 +99,21 @@ export const addComponentToComputer = async(req, res, next) => {
       }
       computer.history.push(historyItem);
     }
-    computer.components[componentType].id = newComponent._id;
+    if(currentComponentId) {
+      const compId = computer.components.findIndex(currentComponentId);
+      if(compId !== -1) {
+        computer.components[componentType].id.splice(compId, 1);
+      }
+      computer.components[componentType].id.push(newComponent._id);
+    } else if(type === 'ram' || type === 'disk') {
+      computer.components[componentType].id.push(newComponent._id.toString());
+    } else {
+      computer.components[componentType].id = newComponent._id;
+    }
     newComponent.anchor = computer._id;
-
     await newComponent.save();
     await computer.save();
-    return res.status(200).json({component: newComponent, history: computer.history, computer, message});
+    return res.status(200).json({component: newComponent, computer, message});
   } catch(error) {
     return res.status(500).json({ message: 'Щось пішло не так'});
   }
