@@ -134,6 +134,9 @@ export const getComponentsByType = async(req, res, next) => {
 export const deleteComponent = async (req, res, next) => {
   const { id } = req.body;
 
+  if(!req.isTeacher) {
+    return res.status(403).json({ message: 'Access denied' });
+  }
   try {
     const component = await Component.findById(id);
     

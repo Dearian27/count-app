@@ -6,7 +6,7 @@ export const verifyToken = (req, res, next) => {
   jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
     if(err) return res.status(403).json({ message: 'Token is invalid or expired'});
     req.user = user;
-    req.isTeacher = user.role === 'teacher' || user.role === 'admin';
+    req.isTeacher = user.status === 'teacher' || user.status === 'admin';
     next();
   })
 }
