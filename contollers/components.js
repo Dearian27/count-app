@@ -11,7 +11,23 @@ export const getAllComponents = async(req, res, next) => {
   }
 }
 
+export const getComponents = async(req, res, next) => {
+  const { id } = req.params;
+  try {
+    console.log(id)
+    const component = await Component.findById(id);
+    
+    return res.status(200).json({
+      component,
+      message: "get component",
+    })
 
+  } catch(error) {
+    res.status(500).json({message: 'something went wrong'});
+  }
+}
+
+/** 
 export const getComputerComponents = async(req, res, next) => {
   const { id } = req.params;
   try {
@@ -22,7 +38,7 @@ export const getComputerComponents = async(req, res, next) => {
     res.status(500).json({message: "Cannot get computer components"});
   }
 }
-
+*/
 export const createComponent = async(req, res, next) => {
   const {type, name} = req.body;
   if(!type || !name) return res.status(404).json({message: 'Please, provide credentials'});
