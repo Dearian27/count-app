@@ -39,6 +39,8 @@ export const getComputerComponents = async(req, res, next) => {
   }
 }
 */
+
+
 export const createComponent = async(req, res, next) => {
   const {type, name} = req.body;
   if(!type || !name) return res.status(404).json({message: 'Please, provide credentials'});
@@ -50,6 +52,7 @@ export const createComponent = async(req, res, next) => {
     res.status(500).json({message: 'Something went wrong'})
   }
 }
+
 export const addComponentToComputer = async(req, res, next) => {
   const {type, id:componentId, currentComponentId=null} = req.body;
   const { id } = req.params;  
@@ -148,7 +151,7 @@ export const getComponentsByType = async(req, res, next) => {
 };
 
 export const deleteComponent = async (req, res, next) => {
-  const { id } = req.body;
+  const { id } = req.params;
 
   if(!req.isTeacher) {
     return res.status(403).json({ message: 'Access denied' });
@@ -220,5 +223,40 @@ export const updateComponent = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Виникла помилка при оновлені компонент' });
+  }
+};
+
+export const removeComponent = async (req, res, next) => {
+  const { id } = req.params;
+
+ 
+  try {
+    const component = await Component.findById(id);
+    if (!component) {
+      return res.status(404).json({ message: 'Component not found' });
+    }
+
+    if(!component.anchor){
+      return res.status(418).json({ message: 'Component not found' });
+    }
+
+    const computer = await Computer.findById(component.anchor); 
+    if (!computer) {
+      return res.status(404).json({ message: 'Component not foundsdafsda' });
+    }
+
+    component.anchor  = "";
+    const index = computer.components.find(c => c.type === component.type).id.indexOf(id);
+    computer.components.find( c => c.type === component.type).id.splice(index, 1);
+    
+    await component.save();
+    await computer.save();
+    return res.status(200).json({
+      message: "Компонент вилучено успішно",
+    });
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Виникла помилка при вилучені компонент' });
   }
 };
