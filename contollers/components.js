@@ -190,3 +190,35 @@ export const deleteComponent = async (req, res, next) => {
     return res.status(500).json({ message: 'Виникла помилка при видаленні компонент' });
   }
 };
+
+
+export const updateComponent = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    
+    const filter = { _id: id };
+    if (!filter) {
+      return res.status(404).json({ message: "Компонент не знайдено" });
+    }
+    
+    const { name } = req.body;
+    if (!name) {
+      return res.status(404).json({ message: "Невказані зміни" });
+    }
+ 
+    const update = { $set: { name } };
+
+    const result = await Component.updateOne(filter, update);
+    const component = await Component.find(filter)
+    
+    return res.status(200).json({
+      component,
+      massage: "Компонент оновлено успішно",
+    });
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Виникла помилка при оновлені компонент' });
+  }
+};
