@@ -1,15 +1,15 @@
 import express from 'express';
-import { createComponent, getAllComponents, getComponentsByType, addComponentToComputer, deleteComponent, getComponents } from '../contollers/components.js';
+import { createComponent, getAllComponents, getComponentsByType, addComponentToComputer, deleteComponent } from '../contollers/components.js';
+import { verifyToken } from '../contollers/verifyToken.js';
 
 const router = express.Router();
 
 router.get('/', getAllComponents);
-router.get('/type/:type', getComponentsByType);
-router.get('/:id', getComponents);
-//router.get('/:id', getComputerComponents);
+router.get('/:type', getComponentsByType);
+// router.get('/:id', getComputerComponents);
 router.post('/create', createComponent);
 router.post('/:id', addComponentToComputer)
-router.delete('/delete', deleteComponent);
+router.delete('/delete', verifyToken, deleteComponent);
 
 // module.exports = router;
 export default router;
