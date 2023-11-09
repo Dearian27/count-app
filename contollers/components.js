@@ -200,6 +200,7 @@ export const deleteComponent = async (req, res, next) => {
 
 export const updateComponent = async (req, res, next) => {
   const { id } = req.params;
+  const { name } = req.body;
 
   try {
     
@@ -208,7 +209,6 @@ export const updateComponent = async (req, res, next) => {
       return res.status(404).json({ message: "Компонент не знайдено" });
     }
     
-    const { name } = req.body;
     if (!name) {
       return res.status(404).json({ message: "Невказані зміни" });
     }
