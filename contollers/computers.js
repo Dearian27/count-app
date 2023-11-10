@@ -70,7 +70,7 @@ export const updateComputer = async (req, res, next) => {
     
     const filter = { _id: id };
     const computerOld = await Computer.find(filter)
-    if (!filter) {
+    if (!computerOld) {
       return res.status(404).json({ message: "Компонент не знайдено" });
     }
 
@@ -78,8 +78,6 @@ export const updateComputer = async (req, res, next) => {
     if (name === '') {
       return res.status(400).json({ message: 'Поле "name" не може бути пустим' });
     }
-
-    // Створіть об'єкт оновлення для полів "name", "location" та "responsible"
     const update = {
       $set: {
         name,
@@ -88,10 +86,9 @@ export const updateComputer = async (req, res, next) => {
       },
     };
     
-    
-    const result = await Computer.updateOne(filter, update);
+    await Computer.updateOne(filter, update);
 
-    const computer = await Computer.find(filter)
+    const computer = await Computer.findOne(filter);
     
     return res.status(200).json({
       computer,

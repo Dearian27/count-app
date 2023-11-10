@@ -172,7 +172,7 @@ export const deleteComponent = async (req, res, next) => {
 
     const computer = await Computer.findById(component.anchor); 
     if (!computer) {
-      return res.status(404).json({ message: 'Component not foundsdafsda' });
+      return res.status(404).json({ message: 'Component not found' });
     }
     
    // console.log(computer.components.find(c => c.type === component.type).id)
@@ -245,7 +245,7 @@ export const removeComponent = async (req, res, next) => {
 
     const computer = await Computer.findById(component.anchor); 
     if (!computer) {
-      return res.status(404).json({ message: 'Component not foundsdafsda' });
+      return res.status(404).json({ message: 'Component not found' });
     }
 
     component.anchor  = "";
