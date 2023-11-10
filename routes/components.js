@@ -8,11 +8,10 @@ router.get('/', getAllComponents);
 router.get('/:type', getComponentsByType);
 // router.get('/:id', getComputerComponents);
 router.post('/create', createComponent);
-router.delete('/delete', verifyToken, deleteComponent);
 router.post('/remove/:id', removeComponent);
 router.post('/:id', addComponentToComputer);
-router.post('/update/:id', updateComponent);
-router.delete('/delete/:id', deleteComponent);
+router.post('/update/:id', verifyToken, updateComponent);
+router.delete('/delete/:id', verifyToken, deleteComponent);
 
 // module.exports = router;
 export default router;

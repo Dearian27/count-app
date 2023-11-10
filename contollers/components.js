@@ -1,5 +1,6 @@
 import { Component } from "../models/Component.js";
 import { Computer } from "../models/Computer.js";
+import { User } from "../models/User.js";
 
 export const getAllComponents = async(req, res, next) => { 
   try {
@@ -155,8 +156,8 @@ export const getComponentsByType = async(req, res, next) => {
 
 export const deleteComponent = async (req, res, next) => {
   const { id } = req.params;
-
-  if(!req.isTeacher) {
+  const user = await User.findById(req.user.id);
+  if(user.status !== "admin" && user.status !== "teacher") {
     return res.status(403).json({ message: 'Access denied' });
   }
   try {
@@ -165,28 +166,21 @@ export const deleteComponent = async (req, res, next) => {
     if (!component) {
       return res.status(404).json({ message: 'Component not found' });
     }
-
-    if(!component.anchor){
-      return res.status(418).json({ message: 'Component not found' });
+    
+    if(component.anchor) {
+      const computer = await Computer.findById(component.anchor); 
+      if(computer) {
+        const index = computer.components.find(c => c.type === component.type).id.indexOf(id);
+        computer.components.find( c => c.type === component.type).id.splice(index, 1);
+        await computer.save();
+      }
     }
-
-    const computer = await Computer.findById(component.anchor); 
-    if (!computer) {
-      return res.status(404).json({ message: 'Component not found' });
-    }
     
-   // console.log(computer.components.find(c => c.type === component.type).id)
-    
-    const index = computer.components.find(c => c.type === component.type).id.indexOf(id);
-    computer.components.find( c => c.type === component.type).id.splice(index, 1);
-    
-
     const deletedComponents = await Component.findOneAndDelete({ _id: id });
     if (!deletedComponents) {
       return res.status(404).json({ message: "Компонент не знайдено" });
     }
 
-    await computer.save();
     return res.status(200).json({
       message: "Компонент видалено успішно",
     });

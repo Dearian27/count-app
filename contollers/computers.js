@@ -16,9 +16,9 @@ export const getComputers = async(req, res, next) => {
 export const getComputersById = async(req, res, next) => {
   const { id } = req.params;
   try {
-    const computers = await Computer.findOne({_id: id});
+    const computer = await Computer.findOne({_id: id});
     return res.status(200).json({
-      computers,
+      computer,
       message: "get computers",
     })
   } catch(error) {
