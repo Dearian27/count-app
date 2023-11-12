@@ -71,10 +71,8 @@ export const addComponentToComputer = async(req, res, next) => {
     }
     const oldId = computer.components.find(component => component.type === type).id[0];  
     let oldComponent;
-    if (oldId) {
-      if(oldId === newComponent._id) {
-        return res.status(401).json({message: "Cannot change same component"});
-      }
+    if(oldId === newComponent._id) {
+      return res.status(401).json({message: "Cannot change same component"});
     }
     if(currentComponentId) {
       oldComponent = await Component.findById(currentComponentId);  
@@ -97,9 +95,11 @@ export const addComponentToComputer = async(req, res, next) => {
         if(newComponent.anchor !== computer._id && newComponent.anchor) {    
           const oldComputer = await Computer.findById(newComponent.anchor);
           if(currentComponentId) {
-            const currentId = oldComputer.components.find(component => component.type === type).id.findIndex(id => id === currentComponentId);
+            console.log(oldComputer.components);
+            const currentId = oldComputer.components.find(component => component.type === type).id.findIndex(idx => idx === currentComponentId);
             if(currentId !== -1) {
               oldComputer.components.find(component => component.type === type).id.splice(currentId, 1);
+              console.log(oldComputer.components);
             }
           } else if (type !== 'ram' && type !== 'disk') {
             oldComputer.components.find(component => component.type === type).id = '';
@@ -132,7 +132,7 @@ export const addComponentToComputer = async(req, res, next) => {
     } else if(type === 'ram' || type === 'disk') {
       computer.components[componentType].id.push(newComponent._id.toString());
     } else {
-      computer.components[componentType].id = newComponent._id;
+      computer.components[componentType].id[0] = newComponent._id;
     }
     newComponent.anchor = computer._id;
     await newComponent.save();
