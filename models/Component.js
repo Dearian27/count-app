@@ -4,7 +4,7 @@ const componentSchema = mongoose.Schema({
   name: String,
   type: {
     type: String,
-    enum: ['case', 'gpu', 'cpu', 'motherboard', 'monitor', 'ram']
+    enum: ['case', 'gpu', 'cpu', 'motherboard', 'monitor', 'ram', 'disk', 'mouse', 'keyboard', 'power_supply']
   },
   anchor: {
     type: String,

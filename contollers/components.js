@@ -15,7 +15,6 @@ export const getAllComponents = async(req, res, next) => {
 export const getComponents = async(req, res, next) => {
   const { id } = req.params;
   try {
-    console.log(id)
     const component = await Component.findById(id);
     
     return res.status(200).json({
@@ -56,7 +55,7 @@ export const createComponent = async(req, res, next) => {
 
 export const addComponentToComputer = async(req, res, next) => {
   const {type, id:componentId, currentComponentId=null} = req.body;
-  const { id } = req.params;  
+  const { id } = req.params;
   try {
     const computer = await Computer.findById(id);
     if (!computer) {
@@ -70,10 +69,12 @@ export const addComponentToComputer = async(req, res, next) => {
     if (componentType === -1) {
       return res.status(404).json({ message: 'Component not found' });
     }
-    const oldId = computer.components.find(component => component.type === type).id;    
+    const oldId = computer.components.find(component => component.type === type).id[0];  
     let oldComponent;
-    if(oldId === newComponent._id) {
-      return res.status(401).json({message: "Cannot change same component"});
+    if (oldId) {
+      if(oldId === newComponent._id) {
+        return res.status(401).json({message: "Cannot change same component"});
+      }
     }
     if(currentComponentId) {
       oldComponent = await Component.findById(currentComponentId);  
