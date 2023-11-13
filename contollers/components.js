@@ -53,9 +53,10 @@ export const createComponent = async(req, res, next) => {
   }
 }
 
-export const addComponentToComputer = async(req, res, next) => {
+export const changeComponentOfComputer = async(req, res, next) => {
   const {type, id:componentId, currentComponentId=null} = req.body;
   const { id } = req.params;
+  let oldComputer;
   try {
     const computer = await Computer.findById(id);
     if (!computer) {
@@ -69,16 +70,18 @@ export const addComponentToComputer = async(req, res, next) => {
     if (componentType === -1) {
       return res.status(404).json({ message: 'Component not found' });
     }
-    const oldId = computer.components.find(component => component.type === type).id[0];  
+    const oldId = computer.components.find(component => component.type === type).id.findIndex(id => id === componentId);  
     let oldComponent;
     if(oldId === newComponent._id) {
       return res.status(401).json({message: "Cannot change same component"});
     }
     if(currentComponentId) {
       oldComponent = await Component.findById(currentComponentId);  
-    } else if(oldId) {
+    } else if(oldId && oldId !== -1) {
+      console.log(oldId)
       oldComponent = await Component.findById(oldId);  
     }
+    console.log(2);
     let message;
     if(!oldComponent || oldComponent?._id === newComponent._id){
       message = "Початок експлуатації";
@@ -93,18 +96,32 @@ export const addComponentToComputer = async(req, res, next) => {
       message = "Зміна комплектуючої";
       try {
         if(newComponent.anchor !== computer._id && newComponent.anchor) {    
-          const oldComputer = await Computer.findById(newComponent.anchor);
+          oldComputer = await Computer.findById(newComponent.anchor);
+          console.log("OLDCOMPUTER");
+          console.log(oldComputer);
           if(currentComponentId) {
-            console.log(oldComputer.components);
+            // console.log(oldComputer.components);
+            // console.log(oldComputer.name, 'NAME');
+
+
+              // oldComputer.components.find(comp => comp.type === type).id = oldComputer.components.find(comp => comp.type === type).id.filter(id => id === addedComponent._id);
             const currentId = oldComputer.components.find(component => component.type === type).id.findIndex(idx => idx === currentComponentId);
             if(currentId !== -1) {
               oldComputer.components.find(component => component.type === type).id.splice(currentId, 1);
-              console.log(oldComputer.components);
             }
+            
+              // console.log(oldComputer.components);
+            
           } else if (type !== 'ram' && type !== 'disk') {
-            oldComputer.components.find(component => component.type === type).id = '';
+            console.log("LOG 418");
+            const currentId = oldComputer.components.find(component => component.type === type).id.findIndex(id => id === componentId);
+            if(currentId !== -1) {
+              oldComputer.components.find(component => component.type === type).id.splice(currentId, 1);
+            }
           }
-          await oldComputer.save();
+          if(oldComputer) {
+            await oldComputer.save();
+          }
         } 
       } catch(err) {
         console.log(err);
@@ -135,13 +152,136 @@ export const addComponentToComputer = async(req, res, next) => {
       computer.components[componentType].id[0] = newComponent._id;
     }
     newComponent.anchor = computer._id;
+    // console.log(computer.components);
     await newComponent.save();
     await computer.save();
-    return res.status(200).json({component: newComponent, computer, message});
+    return res.status(200).json({component: newComponent, computer, message, oldComputer: oldComputer || 'none'});
   } catch(error) {
     console.log(error);
     return res.status(500).json({ message: 'Щось пішло не так'});
   }
+}
+
+export const changeMultipleComponentInComputer = async (req, res, next) => {
+  const {type, id:componentId, currentComponentId} = req.body;
+  const { id } = req.params;
+  
+  const oldComponent = await Component.findById(currentComponentId);
+  if(!oldComponent) {
+    return res.status(500).json({message: 'Nothing to change'});
+  }
+  if(type !== 'ram' && type !== 'disk') {
+    return res.status(418).json({ message: 'Invalid type of component'});
+  }
+  const computer = await Computer.findById(id);
+  if (!computer) {
+    return res.status(404).json({ message: 'Computer not found' });
+  }
+  if(computer.components.find(component => component.type === type).id.includes(componentId)) {
+    return res.status(500).json({ message: 'Component has already installed'})
+  }
+  
+  const addedComponent = await Component.findById(componentId);
+  if (!addedComponent) {
+    return res.status(404).json({ message: 'Component not found' });
+  }
+
+  const ccIndex = computer.components.find(component => component.type === type).id.findIndex(id => id === currentComponentId);
+  if(ccIndex !== -1) {
+    computer.components.find(component => component.type === type).id[ccIndex] = componentId;
+  } else {
+    computer.components.find(component => component.type === type).id.push(componentId);
+  }
+  
+  oldComponent.anchor = '';
+  addedComponent.anchor = computer._id;
+
+  const historyItem = {
+    date: Date.now(),
+    componentType: type,
+    id: addedComponent._id,
+    name: addedComponent.name,
+    oldId: oldComponent._id || '',
+    oldName: oldComponent.name || ''
+  }
+  computer.history.push(historyItem);
+
+  await addedComponent.save();
+  await computer.save();
+  await oldComponent.save();
+  return res.status(200).json({message: "success change component"});
+}
+
+export const addComponentToComputer = async(req, res, next) => {
+  const { type, id:componentId } = req.body;
+  const { id } = req.params;
+
+  if(type !== 'ram' && type !== 'disk') {
+    return res.status(418).json({ message: 'Invalid type of component'});
+  }
+
+  let computer;
+  try {
+    computer = await Computer.findById(id);
+  } catch(error) {
+    console.log(error);
+    return res.status(404).json({message: 'Computer not found'})
+  }
+
+  let addedComponent;
+  try {
+    addedComponent = await Component.findById(componentId);
+  } catch(error) {
+    console.log(error);
+    return res.status(404).json({message: 'Component not found'})
+  }
+
+  let oldComputer;
+  if(addedComponent?.anchor) {
+    if(addedComponent.anchor === addedComponent._id) {
+      return res.status(500).json({message: 'Component already installed'});
+    }
+    oldComputer = await Computer.findById(addedComponent.anchor);
+    if(oldComputer) {
+      oldComputer.components.find(comp => comp.type === type).id = oldComputer.components.find(comp => comp.type === type).id.filter(id => id !== addedComponent._id.toString());
+      console.log(oldComputer);
+    }
+  }
+  
+  console.log(addedComponent);
+  computer.components.find(comp => comp.type === type).id = computer.components.find(comp => comp.type === type).id.filter(id => id !== addedComponent._id.toString());
+  computer.components.find(comp => comp.type === type).id.push(addedComponent._id.toString());
+
+  addedComponent.anchor = computer._id;
+
+  const historyItem = {
+    date: Date.now(),
+    componentType: type,
+    id: addedComponent._id,
+    name: addedComponent.name,
+    oldId: '',
+    oldName: ''
+  }
+  computer.history.push(historyItem);
+
+  if(oldComputer) {
+    const historyItem = {
+      date: Date.now(),
+      componentType: type,
+      id: '',
+      name: '',
+      oldId: addedComponent._id,
+      oldName: addedComponent.name
+    }
+    oldComputer.history.push(historyItem);
+  }
+  
+  await computer.save();
+  await oldComputer?.save();
+  await addedComponent.save();
+
+  return res.status(200).json({message: 'ok', oldComputer: oldComputer.components, computer: computer.components});
+
 }
 
 export const getComponentsByType = async(req, res, next) => {
