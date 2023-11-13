@@ -9,9 +9,9 @@ router.get('/:type', getComponentsByType);
 // router.get('/:id', getComputerComponents);
 router.post('/create', createComponent);
 router.post('/remove/:id', removeComponent);
-router.post('/:id', changeComponentOfComputer);
-router.post('/multiple/:id', changeMultipleComponentInComputer);
-router.post('/add/:id', addComponentToComputer);
+router.put('/:id', changeComponentOfComputer);
+router.put('/multiple/:id', changeMultipleComponentInComputer);
+router.put('/add/:id', addComponentToComputer);
 router.post('/update/:id', verifyToken, updateComponent);
 router.delete('/delete/:id', verifyToken, deleteComponent);
 

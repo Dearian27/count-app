@@ -133,7 +133,7 @@ export const changeComponentOfComputer = async(req, res, next) => {
     await newComponent.save();
     await computer.save();
     await oldComputer?.save();
-    return res.status(200).json({component: newComponent, computer, message, oldComputer: oldComputer || 'none'});
+    return res.status(200).json({message});
   } catch(error) {
     console.log(error);
     return res.status(500).json({ message: 'Щось пішло не так'});
@@ -171,6 +171,24 @@ export const changeMultipleComponentInComputer = async (req, res, next) => {
     computer.components.find(component => component.type === type).id.push(componentId);
   }
   
+  
+  let oldComputer;
+  if(addedComponent?.anchor) {
+    oldComputer = await Computer.findById(addedComponent.anchor);
+    if(oldComputer) {
+      oldComputer.components.find(comp => comp.type === type).id = oldComputer.components.find(comp => comp.type === type).id.filter(id => id !== addedComponent._id.toString());      
+      const historyItem = {
+        date: Date.now(),
+        componentType: type,
+        id: '',
+        name: '',
+        oldId: addedComponent._id,
+        oldName: addedComponent.name
+      }
+      oldComputer.history.push(historyItem);
+    }
+  }
+
   oldComponent.anchor = '';
   addedComponent.anchor = computer._id;
 
@@ -186,6 +204,7 @@ export const changeMultipleComponentInComputer = async (req, res, next) => {
 
   await addedComponent.save();
   await computer.save();
+  await oldComputer?.save();
   await oldComponent.save();
   return res.status(200).json({message: "success change component"});
 }
@@ -222,11 +241,9 @@ export const addComponentToComputer = async(req, res, next) => {
     oldComputer = await Computer.findById(addedComponent.anchor);
     if(oldComputer) {
       oldComputer.components.find(comp => comp.type === type).id = oldComputer.components.find(comp => comp.type === type).id.filter(id => id !== addedComponent._id.toString());
-      console.log(oldComputer);
     }
   }
   
-  console.log(addedComponent);
   computer.components.find(comp => comp.type === type).id = computer.components.find(comp => comp.type === type).id.filter(id => id !== addedComponent._id.toString());
   computer.components.find(comp => comp.type === type).id.push(addedComponent._id.toString());
 
@@ -258,7 +275,7 @@ export const addComponentToComputer = async(req, res, next) => {
   await oldComputer?.save();
   await addedComponent.save();
 
-  return res.status(200).json({message: 'ok', oldComputer: oldComputer.components, computer: computer.components});
+  return res.status(200).json({message: 'ok'});
 
 }
 
