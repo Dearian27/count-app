@@ -54,9 +54,12 @@ export const createComponent = async(req, res, next) => {
 }
 
 export const changeComponentOfComputer = async(req, res, next) => {
-  const {type, id:componentId, currentComponentId=null} = req.body;
+  const { type, id:componentId } = req.body;
   const { id } = req.params;
-  let oldComputer;
+  
+  if(type === 'ram' || type === 'disk') {
+    return res.status(418).json({ message: 'Invalid type of component'});
+  }
   try {
     const computer = await Computer.findById(id);
     if (!computer) {
@@ -70,20 +73,21 @@ export const changeComponentOfComputer = async(req, res, next) => {
     if (componentType === -1) {
       return res.status(404).json({ message: 'Component not found' });
     }
-    const oldId = computer.components.find(component => component.type === type).id.findIndex(id => id === componentId);  
     let oldComponent;
-    if(oldId === newComponent._id) {
+    let oldComputer;
+    if(newComponent.anchor) {
+      oldComputer = await Computer.findById(newComponent.anchor);
+    } 
+
+    if((computer._id.toString() === newComponent?.anchor || '')) {
       return res.status(401).json({message: "Cannot change same component"});
     }
-    if(currentComponentId) {
-      oldComponent = await Component.findById(currentComponentId);  
-    } else if(oldId && oldId !== -1) {
-      console.log(oldId)
+    const oldId = computer.components.find(component => component.type === type).id[0];
+    if(oldId) {
       oldComponent = await Component.findById(oldId);  
     }
-    console.log(2);
     let message;
-    if(!oldComponent || oldComponent?._id === newComponent._id){
+    if(!computer.components.find(component => component.type === type).id[0]){
       message = "Початок експлуатації";
       const historyItem = {
         date: Date.now(),
@@ -94,42 +98,6 @@ export const changeComponentOfComputer = async(req, res, next) => {
       computer.history.push(historyItem);    
     } else {
       message = "Зміна комплектуючої";
-      try {
-        if(newComponent.anchor !== computer._id && newComponent.anchor) {    
-          oldComputer = await Computer.findById(newComponent.anchor);
-          console.log("OLDCOMPUTER");
-          console.log(oldComputer);
-          if(currentComponentId) {
-            // console.log(oldComputer.components);
-            // console.log(oldComputer.name, 'NAME');
-
-
-              // oldComputer.components.find(comp => comp.type === type).id = oldComputer.components.find(comp => comp.type === type).id.filter(id => id === addedComponent._id);
-            const currentId = oldComputer.components.find(component => component.type === type).id.findIndex(idx => idx === currentComponentId);
-            if(currentId !== -1) {
-              oldComputer.components.find(component => component.type === type).id.splice(currentId, 1);
-            }
-            
-              // console.log(oldComputer.components);
-            
-          } else if (type !== 'ram' && type !== 'disk') {
-            console.log("LOG 418");
-            const currentId = oldComputer.components.find(component => component.type === type).id.findIndex(id => id === componentId);
-            if(currentId !== -1) {
-              oldComputer.components.find(component => component.type === type).id.splice(currentId, 1);
-            }
-          }
-          if(oldComputer) {
-            await oldComputer.save();
-          }
-        } 
-      } catch(err) {
-        console.log(err);
-      }
-      if(oldComponent) {
-        oldComponent.anchor = '';
-        await oldComponent.save();
-      }
       const historyItem = {
         date: Date.now(),
         componentType: type,
@@ -139,22 +107,32 @@ export const changeComponentOfComputer = async(req, res, next) => {
         oldName: oldComponent.name || ''
       }
       computer.history.push(historyItem);
-    }
-    if(currentComponentId) {
-      const compId = computer.components[componentType].id.indexOf(currentComponentId);
-      if(compId !== -1) {
-        computer.components[componentType].id.splice(compId, 1);
+      
+      if(newComponent.anchor) {
+        oldComputer.components.find(component => component.type === type).id = [];
+        if(oldComputer._id !== computer._id) {
+          const oldHistoryItem = {
+            date: Date.now(),
+            componentType: type,
+            id: '',
+            name: '',
+            oldId: newComponent._id,
+            oldName: newComponent.name
+          }
+          oldComputer?.history.push(oldHistoryItem);
+        }
       }
-      computer.components[componentType].id.push(newComponent._id);
-    } else if(type === 'ram' || type === 'disk') {
-      computer.components[componentType].id.push(newComponent._id.toString());
-    } else {
-      computer.components[componentType].id[0] = newComponent._id;
     }
+    if(oldComponent) {
+      oldComponent.anchor = '';
+      await oldComponent.save();
+    }
+    computer.components[componentType].id[0] = newComponent._id;
     newComponent.anchor = computer._id;
-    // console.log(computer.components);
+
     await newComponent.save();
     await computer.save();
+    await oldComputer?.save();
     return res.status(200).json({component: newComponent, computer, message, oldComputer: oldComputer || 'none'});
   } catch(error) {
     console.log(error);
