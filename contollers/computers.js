@@ -27,11 +27,11 @@ export const getComputersById = async(req, res, next) => {
 }
 
 export const createComputer = async(req, res, next) => {
-  const { name } = req.body;
+  const { name, location, responsible } = req.body;
   try {
     
     if(!name) res.status(400).send('Bad Request: Field "name" is required');
-    const computer = await new Computer({name});
+    const computer = await new Computer({name, responsible, location});
     computer.save();
     res.status(200).json({
       computer,
