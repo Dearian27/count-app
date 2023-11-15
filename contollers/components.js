@@ -43,13 +43,13 @@ export const getComputerComponents = async(req, res, next) => {
 
 export const createComponent = async(req, res, next) => {
   const {type, name} = req.body;
-  if(!type || !name) return res.status(404).json({message: 'Please, provide credentials'});
+  if(!type || !name) return res.status(404).json({message: 'Please, provide credentials.'});
   try {
     const component = new Component({type, name});
     component.save();
-    res.status(200).json({component, message: 'Component created successfully'});
+    res.status(200).json({component, message: 'Компонент створено успішно!'});
   } catch(error) {
-    res.status(500).json({message: 'Something went wrong'})
+    res.status(500).json({message: 'Щось пішло не так.'})
   }
 }
 
@@ -133,10 +133,10 @@ export const changeComponentOfComputer = async(req, res, next) => {
     await newComponent.save();
     await computer.save();
     await oldComputer?.save();
-    return res.status(200).json({message});
+    return res.status(200).json({message: "Компонент додано успішно!"});
   } catch(error) {
     console.log(error);
-    return res.status(500).json({ message: 'Щось пішло не так'});
+    return res.status(500).json({ message: 'Щось пішло не так.'});
   }
 }
 
@@ -206,7 +206,7 @@ export const changeMultipleComponentInComputer = async (req, res, next) => {
   await computer.save();
   await oldComputer?.save();
   await oldComponent.save();
-  return res.status(200).json({message: "success change component"});
+  return res.status(200).json({message: "Компонент додано успішно!"});
 }
 
 export const addComponentToComputer = async(req, res, next) => {
@@ -214,7 +214,7 @@ export const addComponentToComputer = async(req, res, next) => {
   const { id } = req.params;
 
   if(type !== 'ram' && type !== 'disk') {
-    return res.status(418).json({ message: 'Invalid type of component'});
+    return res.status(418).json({ message: 'Неправильний тип комопнента.'});
   }
 
   let computer;
@@ -222,7 +222,7 @@ export const addComponentToComputer = async(req, res, next) => {
     computer = await Computer.findById(id);
   } catch(error) {
     console.log(error);
-    return res.status(404).json({message: 'Computer not found'})
+    return res.status(404).json({message: 'Комп\'ютер не знайдено.'})
   }
 
   let addedComponent;
@@ -230,13 +230,13 @@ export const addComponentToComputer = async(req, res, next) => {
     addedComponent = await Component.findById(componentId);
   } catch(error) {
     console.log(error);
-    return res.status(404).json({message: 'Component not found'})
+    return res.status(404).json({message: 'Компонент не знайдено.'})
   }
 
   let oldComputer;
   if(addedComponent?.anchor) {
     if(addedComponent.anchor === addedComponent._id) {
-      return res.status(500).json({message: 'Component already installed'});
+      return res.status(500).json({message: 'Компонент уже встановлено.'});
     }
     oldComputer = await Computer.findById(addedComponent.anchor);
     if(oldComputer) {
@@ -275,7 +275,7 @@ export const addComponentToComputer = async(req, res, next) => {
   await oldComputer?.save();
   await addedComponent.save();
 
-  return res.status(200).json({message: 'ok'});
+  return res.status(200).json({message: 'Компонент додано успішно!'});
 
 }
 
@@ -283,10 +283,10 @@ export const getComponentsByType = async(req, res, next) => {
   const { type } = req.params; 
   try {
     const components = await Component.find({type: type});
-    return res.status(200).json({components, message: 'Get components'});
+    return res.status(200).json({components, message: 'Компоненти отримано!'});
   } catch (err) {
     console.log(err);
-    return res.status(500).json({message: 'Error getting components'});
+    return res.status(500).json({message: 'Помилка отримання компонентів.'});
   }
 };
 
@@ -294,13 +294,13 @@ export const deleteComponent = async (req, res, next) => {
   const { id } = req.params;
   const user = await User.findById(req.user.id);
   if(user.status !== "admin" && user.status !== "teacher") {
-    return res.status(403).json({ message: 'Access denied' });
+    return res.status(403).json({ message: 'Ви не маєте доступу.' });
   }
   try {
     const component = await Component.findById(id);
     
     if (!component) {
-      return res.status(404).json({ message: 'Component not found' });
+      return res.status(404).json({ message: 'Компонент не знайдено' });
     }
     
     if(component.anchor) {
@@ -309,21 +309,32 @@ export const deleteComponent = async (req, res, next) => {
         const index = computer.components.find(c => c.type === component.type).id.indexOf(id);
         computer.components.find( c => c.type === component.type).id.splice(index, 1);
         await computer.save();
+        const historyItem = {
+          date: Date.now(),
+          componentType: component.type,
+          id: '',
+          name: '',
+          oldId: component._id,
+          oldName: component.name
+        }
+        computer.history.push(historyItem);
+
+        await computer.save();
       }
     }
     
     const deletedComponents = await Component.findOneAndDelete({ _id: id });
     if (!deletedComponents) {
-      return res.status(404).json({ message: "Компонент не знайдено" });
+      return res.status(404).json({ message: "Компонент не знайдено." });
     }
 
     return res.status(200).json({
-      message: "Компонент видалено успішно",
+      message: "Компонент видалено успішно!",
     });
     
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Виникла помилка при видаленні компонент' });
+    return res.status(500).json({ message: 'Виникла помилка при видаленні компонента.' });
   }
 };
 
@@ -366,16 +377,16 @@ export const removeComponent = async (req, res, next) => {
   try {
     const component = await Component.findById(id);
     if (!component) {
-      return res.status(404).json({ message: 'Component not found' });
+      return res.status(404).json({ message: 'Компонент не знайдено.' });
     }
 
     if(!component.anchor){
-      return res.status(418).json({ message: 'Component not found' });
+      return res.status(418).json({ message: 'Комп\'ютер компонента не знайдено.' });
     }
 
     const computer = await Computer.findById(component.anchor); 
     if (!computer) {
-      return res.status(404).json({ message: 'Component not found' });
+      return res.status(404).json({ message: 'Комп\'ютер не знайдено.' });
     }
 
     component.anchor  = "";
@@ -385,11 +396,11 @@ export const removeComponent = async (req, res, next) => {
     await component.save();
     await computer.save();
     return res.status(200).json({
-      message: "Компонент вилучено успішно",
+      message: "Компонент вилучено успішно.",
     });
     
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Виникла помилка при вилучені компонент' });
+    return res.status(500).json({ message: 'Виникла помилка при вилучені компонента.' });
   }
 };

@@ -35,7 +35,7 @@ export const createComputer = async(req, res, next) => {
     computer.save();
     res.status(200).json({
       computer,
-      message: "Computer has been created"
+      message: "Комп'ютер було створено"
     })
   } catch (err) {
     console.log(err);
@@ -76,7 +76,7 @@ export const updateComputer = async (req, res, next) => {
 
     const { location, responsible, name } = req.body;
     if (name === '') {
-      return res.status(400).json({ message: 'Поле "name" не може бути пустим' });
+      return res.status(400).json({ message: 'Поле "ім\'я" не може бути пустим' });
     }
     const update = {
       $set: {
@@ -92,12 +92,12 @@ export const updateComputer = async (req, res, next) => {
     
     return res.status(200).json({
       computer,
-      massage: "Компонент оновлено успішно",
+      message: "Комп'ютер оновлено успішно",
     });
     
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Виникла помилка при оновлені компонент' });
+    return res.status(500).json({ message: 'Виникла помилка при оновлені компонента' });
   }
 };
 
