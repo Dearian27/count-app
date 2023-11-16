@@ -308,7 +308,6 @@ export const deleteComponent = async (req, res, next) => {
       if(computer) {
         const index = computer.components.find(c => c.type === component.type).id.indexOf(id);
         computer.components.find( c => c.type === component.type).id.splice(index, 1);
-        await computer.save();
         const historyItem = {
           date: Date.now(),
           componentType: component.type,

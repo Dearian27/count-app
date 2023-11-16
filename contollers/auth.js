@@ -10,12 +10,10 @@ export const signUp = async (req, res, next) => {
   try {
     const isSignedUp = await User.findOne({ email });
     if (isSignedUp) {
-      return res.status(400).json({ error: 'User already exists', reason: "user" });
+      return res.status(400).json({ message: 'Користувач за такою поштою уже зареєстрований', reason: "user" });
     }
     const salt = bcrypt.genSaltSync(10);
-    console.log(salt);
     const hashedPassword = bcrypt.hashSync(password, salt);
-    console.log("hashedPassword", hashedPassword);
     const newUser = new User(
       {name, surname, email, password: hashedPassword}
     );
@@ -25,11 +23,10 @@ export const signUp = async (req, res, next) => {
     return res.status(200).json({
       token,
       user: other,
-      message: "user has been created"
+      message: "Користувача створено успішно"
     })
-    console.log(3);
   } catch(err) {
-    return res.status(404).json({ message: "Something went wrong"});
+    return res.status(404).json({ message: "Щось пішло не так"});
   }
 }
 
@@ -37,18 +34,18 @@ export const signIn = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if(!email || !password) {
-      return res.status(400).json({ error: 'Please provide name and password', reason: "email"});
+      return res.status(400).json({ message: 'Заповніть форму', reason: "email"});
     }
     const user = await User.findOne({ email });
     if(!user) {
-      return res.status(401).json({ error: 'User does not exist', reason: "user"});
+      return res.status(401).json({ message: 'Користувача з такою поштою не існує', reason: "user"});
     }
     const checkPassword = bcrypt.compareSync(password, user.password);
     if(!checkPassword) {
-      return res.status(401).json({ error: 'Wrong password', reason: "password"});
+      return res.status(401).json({ message: 'Неправильний пароль', reason: "password"});
     }
     const token = jwt.sign({id: user._id, }, process.env.SECRET_KEY);
-    const { userPassword, ...other } = user._doc;
+    const { password:_, ...other } = user._doc;
     res.status(200).json({user: other, token});
   } catch(error) {
     next(error);

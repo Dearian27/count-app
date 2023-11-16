@@ -18,6 +18,10 @@ const userSchema = mongoose.Schema({
     type: String,
     default: 'viewer',
     enum: ['viewer', 'teacher', 'admin'],
+  },
+  password: {
+    type: String,
+    required: true,
   }
 })
 
