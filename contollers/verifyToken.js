@@ -7,6 +7,7 @@ export const verifyToken = (req, res, next) => {
     if(err) return res.status(403).json({ message: 'Токен неправильний, або прострочений.'});
     req.user = user;
     req.isTeacher = user.status === 'teacher' || user.status === 'admin';
+    req.isAdmin = user.status === 'admin';
     next();
   })
 }

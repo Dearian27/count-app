@@ -52,3 +52,47 @@ export const signIn = async (req, res, next) => {
     console.log(error);
   }
 }
+
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    return res.status(200).json({users, message: 'Отримання користувачів.'});
+  } catch(error) {
+    console.log(error);
+    res.status(500).json({message: 'Щось пішло не так.'});
+  }
+}
+export const promoteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if(!req.isAdmin) {
+      return res.status(403).json({ message: "У вам недостатньо прав."})
+    }
+    const user = await User.findById(id);
+    if(!user) {
+      return res.status(404).json({ message: 'Користувач не знайдений.'});
+    }
+    user.status = 'teacher';
+    await user.save();
+    return res.status(200).json({ message: "Користувача підвищено успішно."})
+  } catch(err) {
+    return res.status(500).json({ message: 'Щось пішло не так.'});
+  }
+}
+export const lowerUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if(!req.isAdmin) {
+      return res.status(403).json({ message: "У вам недостатньо прав."})
+    }
+    const user = await User.findById(id);
+    if(!user) {
+      return res.status(404).json({ message: 'Користувач не знайдений.'});
+    }
+    user.status = 'viewer';
+    await user.save();
+    return res.status(200).json({ message: "Користувача понижено успішно."})
+  } catch(err) {
+    return res.status(500).json({ message: 'Щось пішло не так.'});
+  }
+}
