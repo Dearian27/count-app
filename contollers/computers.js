@@ -1,5 +1,6 @@
 import { Component } from "../models/Component.js";
 import { Computer } from "../models/Computer.js"
+import { User } from "../models/User.js";
 
 export const getComputers = async(req, res, next) => {
   try {
@@ -43,13 +44,13 @@ export const createComputer = async(req, res, next) => {
 }
 
 export const deleteComputerById = async (req, res, next) => {
-  const { id } = req.body;
-
+  const { id } = req.params;
   try {
-    
-   
+    const user = await User.findById(req.user.id);
+    if(user.status !== "admin" && user.status !== "teacher") {
+      return res.status(403).json({ message: 'Ви не маєте доступу.' });
+    }
     const deletedComputer = await Computer.findOneAndDelete({ _id: id });
-    
     if (!deletedComputer) {
       return res.status(404).json({ message: "Комп'ютер не знайдено" });
     }
