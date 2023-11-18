@@ -87,7 +87,7 @@ export const changeComponentOfComputer = async(req, res, next) => {
       oldComponent = await Component.findById(oldId);  
     }
     let message;
-    if(!computer.components.find(component => component.type === type).id[0]){
+    if(!computer.components.find(component => component.type === type).id[0] && !newComponent.anchor){
       message = "Початок експлуатації";
       const historyItem = {
         date: Date.now(),
@@ -103,13 +103,13 @@ export const changeComponentOfComputer = async(req, res, next) => {
         componentType: type,
         id: newComponent._id,
         name: newComponent.name,
-        oldId: oldComponent._id || '',
-        oldName: oldComponent.name || ''
+        oldId: oldComponent?._id || '',
+        oldName: oldComponent?.name || ''
       }
       computer.history.push(historyItem);
       
       if(newComponent.anchor) {
-        oldComputer.components.find(component => component.type === type).id = [];
+        oldComputer.components.find(component => component.type === type).id.pop();
         if(oldComputer._id !== computer._id) {
           const oldHistoryItem = {
             date: Date.now(),

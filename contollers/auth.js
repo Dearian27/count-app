@@ -65,6 +65,7 @@ export const getUsers = async (req, res) => {
 export const promoteUser = async (req, res) => {
   const { id } = req.params;
   try {
+    console.log(res.isAdmin);
     if(!req.isAdmin) {
       return res.status(403).json({ message: "У вам недостатньо прав."})
     }
@@ -93,6 +94,24 @@ export const lowerUser = async (req, res) => {
     await user.save();
     return res.status(200).json({ message: "Користувача понижено успішно."})
   } catch(err) {
+    return res.status(500).json({ message: 'Щось пішло не так.'});
+  }
+}
+
+export const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if(!req.isAdmin) {
+      return res.status(403).json({ message: "У вам недостатньо прав."})
+    }
+    const user = await User.findById(id);
+    if(!user) {
+      return res.status(404).json({ message: 'Користувач не знайдений.'});
+    }
+    await User.findByIdAndDelete(id);
+    return res.status(200).json({ message: "Користувача видалено успішно."})
+  } catch(err) {
+    console.log(err)
     return res.status(500).json({ message: 'Щось пішло не так.'});
   }
 }
