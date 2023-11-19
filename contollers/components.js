@@ -87,7 +87,7 @@ export const changeComponentOfComputer = async(req, res, next) => {
       oldComponent = await Component.findById(oldId);  
     }
     let message;
-    if(!computer.components.find(component => component.type === type).id[0] && !newComponent.anchor){
+    if(!computer.components.find(component => component.type === type).id[0]){
       message = "Початок експлуатації";
       const historyItem = {
         date: Date.now(),
@@ -96,6 +96,16 @@ export const changeComponentOfComputer = async(req, res, next) => {
         name: newComponent.name,
       }
       computer.history.push(historyItem);    
+      if(newComponent.anchor && oldComputer) {
+        message = "Кінець експлуатації";
+        const oldHistoryItem = {
+          date: Date.now(),
+          componentType: type,
+          oldId: newComponent._id,
+          oldName: newComponent.name,
+        }
+        oldComputer.history.push(oldHistoryItem);
+      }
     } else {
       message = "Зміна комплектуючої";
       const historyItem = {
@@ -108,7 +118,7 @@ export const changeComponentOfComputer = async(req, res, next) => {
       }
       computer.history.push(historyItem);
       
-      if(newComponent.anchor) {
+      if(newComponent?.anchor && newComponent.anchor !== computer._id) {
         oldComputer.components.find(component => component.type === type).id.pop();
         if(oldComputer._id !== computer._id) {
           const oldHistoryItem = {
@@ -372,7 +382,9 @@ export const updateComponent = async (req, res, next) => {
 export const removeComponent = async (req, res, next) => {
   const { id } = req.params;
 
- 
+  if(!req.isTeacher) {
+    return res.status(403).json({ message: 'У вас недостатньо прав'});
+  }
   try {
     const component = await Component.findById(id);
     if (!component) {
@@ -391,6 +403,15 @@ export const removeComponent = async (req, res, next) => {
     component.anchor  = "";
     const index = computer.components.find(c => c.type === component.type).id.indexOf(id);
     computer.components.find( c => c.type === component.type).id.splice(index, 1);
+    const historyItem = {
+      date: Date.now(),
+      componentType: component.type,
+      id: '',
+      name: '',
+      oldId: component._id,
+      oldName: component.name
+    }
+    computer.history.push(historyItem);
     
     await component.save();
     await computer.save();
