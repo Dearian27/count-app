@@ -53,6 +53,10 @@ const compSchema = mongoose.Schema(
       type: String,
       default: '',
     },
+    notes: {
+      type: String,
+      default: '',
+    }
   }
 )
 

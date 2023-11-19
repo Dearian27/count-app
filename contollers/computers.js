@@ -75,7 +75,7 @@ export const updateComputer = async (req, res, next) => {
       return res.status(404).json({ message: "Компонент не знайдено" });
     }
 
-    const { location, responsible, name } = req.body;
+    const { location, responsible, name, notes } = req.body;
     if (name === '') {
       return res.status(400).json({ message: 'Поле "ім\'я" не може бути пустим' });
     }
@@ -84,6 +84,7 @@ export const updateComputer = async (req, res, next) => {
         name,
         location,
         responsible,
+        notes,
       },
     };
     
