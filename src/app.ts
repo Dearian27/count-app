@@ -85,11 +85,8 @@ app.use(cookieParser());
 mongoose.set("strictQuery", false);
 app.use(
   cors({
-    // origin: [process.env.CORS_ORIGIN, process.env.CORS_ORIGIN_LOCAL],
-    // origin: process.env.CORS_ORIGIN,
-    origin: process.env.CORS_ORIGIN,
+    origin: /https?:\/\//,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 
@@ -121,7 +118,9 @@ const connect = () => {
     });
 };
 
-app.listen(PORT, () => {
+const host = '0.0.0.0';
+
+app.listen(PORT, host, () => {
   connect();
   console.log(`Server is running on http://localhost:${PORT}`);
 });

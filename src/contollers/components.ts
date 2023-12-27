@@ -54,6 +54,8 @@ export const createComponent = async(req, res, next) => {
 }
 
 export const changeComponentOfComputer = async(req, res, next) => {
+  console.log('11');
+  console.log('1 \n 1');
   const { type, id:componentId } = req.body;
   const { id } = req.params;
   
@@ -118,8 +120,8 @@ export const changeComponentOfComputer = async(req, res, next) => {
       }
       computer.history.push(historyItem);
       
-      if(newComponent?.anchor && newComponent.anchor !== computer._id) {
-        oldComputer.components.find(component => component.type === type).id.pop();
+      if(newComponent?.anchor && newComponent.anchor !== computer._id && oldComputer) {
+        oldComputer?.components?.find(component => component.type === type).id.pop();
         if(oldComputer._id !== computer._id) {
           const oldHistoryItem = {
             date: Date.now(),
@@ -165,7 +167,7 @@ export const changeMultipleComponentInComputer = async (req, res, next) => {
   if (!computer) {
     return res.status(404).json({ message: 'Computer not found' });
   }
-  if(computer.components.find(component => component.type === type).id.includes(componentId)) {
+  if(computer?.components?.find(component => component.type === type).id.includes(componentId)) {
     return res.status(500).json({ message: 'Component has already installed'})
   }
   
@@ -186,7 +188,7 @@ export const changeMultipleComponentInComputer = async (req, res, next) => {
   if(addedComponent?.anchor) {
     oldComputer = await Computer.findById(addedComponent.anchor);
     if(oldComputer) {
-      oldComputer.components.find(comp => comp.type === type).id = oldComputer.components.find(comp => comp.type === type).id.filter(id => id !== addedComponent._id.toString());      
+      oldComputer.components.find(comp => comp.type === type).id = oldComputer.components?.find(comp => comp.type === type)?.id.filter(id => id !== addedComponent._id.toString());      
       const historyItem = {
         date: Date.now(),
         componentType: type,

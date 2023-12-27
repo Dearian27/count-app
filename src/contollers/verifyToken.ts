@@ -8,11 +8,15 @@ export const verifyToken = async (req, res, next) => {
     if(err) return res.status(403).json({ message: 'Токен неправильний, або прострочений.'});
     req.user = user;
   })
-  const user = await User.findById(req.user.id);
-  if(!user) {
-    return res.status(401).json({message: 'Ви не зареєстровані.'});
+  if(req.user) {
+    const user = await User.findById(req.user.id);
+    if(!user) {
+      return res.status(401).json({message: 'Ви не зареєстровані.'});
+    }
+    req.isTeacher = user.status === 'teacher' || user.status === 'admin';
+    req.isAdmin = user.status === 'admin';
+    next();
+  } else {
+    return res.status(403).json({ message: 'Щось пішло не так.'});
   }
-  req.isTeacher = user.status === 'teacher' || user.status === 'admin';
-  req.isAdmin = user.status === 'admin';
-  next();
 }
